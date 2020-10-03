@@ -208,7 +208,12 @@ class TrappedOneMaxProblem:
 	def calculate_fitness(self):
 		self.current_fitness = []
 		for x in self.population:
-			self.current_fitness.append(get_trap_fitness_scores(x))
+			score = 0
+			current_index = 0
+			for i in range(int(self.problem_size/5)):
+				score += get_trap_fitness_scores(x[current_index:(i+1)*5])
+				current_index = (i+1)*5
+			self.current_fitness.append(score)
 			self.number_of_eval += 1
 
 
@@ -227,7 +232,7 @@ class TrappedOneMaxProblem:
 
 	def maximize_single_point(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 10000 * self.problem_size):
+		while (self.number_of_eval < 10000 * self.population_size):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating
@@ -255,7 +260,7 @@ class TrappedOneMaxProblem:
 
 	def maximize_uniform(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 10000 * self.problem_size):
+		while (self.number_of_eval < 100000 * self.problem_size):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating

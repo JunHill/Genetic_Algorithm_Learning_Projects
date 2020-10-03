@@ -1,19 +1,16 @@
 from bit_maximization import OneMaxProblem, TrappedOneMaxProblem
+from bisection import bisection
 import sys
 
-print(f'\nFINDING SOLUTION OF ONEMAXPROBLEM...')
-Problem = OneMaxProblem(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
-Problem.maximize_single_point()
-Problem.reset()
-Problem.maximize_uniform()
-
-print(f'\nFINDING SOLITON OF TRAP ONEMAXPROBLEM...')
-try: 
-	assert int(sys.argv[1]) % 5 == 0
-	TrapProblem = TrappedOneMaxProblem(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
-	
-	TrapProblem.maximize_single_point()
-	TrapProblem.reset()
-	TrapProblem.maximize_uniform()
-except:
-	print("Problem size should be multiple of 5 (k)")
+POPULATION_SIZE = 10
+RANDOM_SEED = 18520750
+# DICTIONARY mode
+# problem : normal or trap
+# cross-over : single_point or uniform 
+mode = {'cross-over': 'single_point', 'problem': 'trap'}
+print(f'RUNNING BISECTION FOR POPULATION SIZE: {POPULATION_SIZE} with {mode}...')
+evals, N, success = bisection(POPULATION_SIZE, RANDOM_SEED, mode)
+if success:
+	print(f'average eval: {evals} - average population size: {N}')
+else:
+	print(f'could not find upper bound!')

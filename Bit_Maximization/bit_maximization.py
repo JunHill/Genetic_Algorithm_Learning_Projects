@@ -126,8 +126,8 @@ class OneMaxProblem:
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
-				print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
-				return
+				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
+				return self.number_of_eval, True
 
 			# pool (P+O)
 			pool = []
@@ -139,7 +139,8 @@ class OneMaxProblem:
 			# generate new population through tournament selection
 			new_generation = self.tournament_selection(pool)
 			self.population = np.array(new_generation)
-		print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		return self.number_of_eval, False
 
 	def maximize_uniform(self):
 		# simple Genetic Algorithm with PO(P+O)P model
@@ -154,8 +155,8 @@ class OneMaxProblem:
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
-				print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
-				return
+				#print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
+				return self.number_of_eval, True
 
 			# pool (P+O)
 			pool = []
@@ -167,7 +168,8 @@ class OneMaxProblem:
 			# generate new population through tournament selection
 			new_generation = self.tournament_selection(pool)
 			self.population = np.array(new_generation)
-		print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		return self.number_of_eval, False
 
 class TrappedOneMaxProblem:
 	def __init__(self, problem_size, population_size, seed):
@@ -243,8 +245,8 @@ class TrappedOneMaxProblem:
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
-				print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
-				return
+				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
+				return self.number_of_eval, True
 
 			# pool (P+O)
 			pool = []
@@ -256,7 +258,8 @@ class TrappedOneMaxProblem:
 			# generate new population through tournament selection
 			new_generation = self.tournament_selection(pool)
 			self.population = np.array(new_generation)
-		print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		return self.number_of_eval, False
 
 	def maximize_uniform(self):
 		# simple Genetic Algorithm with PO(P+O)P model
@@ -271,8 +274,8 @@ class TrappedOneMaxProblem:
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
-				print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
-				return
+				#print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
+				return self.number_of_eval, True
 
 			# pool (P+O)
 			pool = []
@@ -284,5 +287,6 @@ class TrappedOneMaxProblem:
 			# generate new population through tournament selection
 			new_generation = self.tournament_selection(pool)
 			self.population = np.array(new_generation)
-		print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
+		return self.number_of_eval, False
 

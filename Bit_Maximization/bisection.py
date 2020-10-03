@@ -1,11 +1,16 @@
 from bit_maximization import OneMaxProblem, TrappedOneMaxProblem
 
-
-def run_multiple_times(times, Problem, mode):
+def run_multiple_times(times, problem_size, N, random_seed, mode):
 	evals = 0
 	for _ in range(times):
 		result = True
 		x = 0
+
+		if mode['problem'] == "normal":
+			Problem = OneMaxProblem(problem_size, N, random_seed)
+		elif mode['problem'] == "trap":
+			Problem = TrappedOneMaxProblem(problem_size, N, random_seed)
+
 		if mode['cross-over'] == "single_point":
 			x, result = Problem.maximize_single_point()
 		elif mode['cross-over'] == "uniform":
@@ -13,27 +18,18 @@ def run_multiple_times(times, Problem, mode):
 		if result == False:
 			return 0, False
 		evals += x
+		random_seed += 1
 	return evals/times, True
 
 
 def get_MRPS_upper_bound(problem_size, random_seed, mode):
 	N_upper = 4
-	Problem = None
-	
-	if mode['problem'] == "normal":
-		Problem = OneMaxProblem(problem_size, N_upper, random_seed)
-	elif mode['problem'] == "trap":
-		Problem = TrappedOneMaxProblem(problem_size, N_upper, random_seed)
 
-	evals, success = run_multiple_times(10, Problem, mode)
+	evals, success = run_multiple_times(10, problem_size, N_upper, random_seed, mode)
 	while (not success and N_upper <= 8192):
 
 		N_upper = N_upper * 2
-		if mode['problem'] == "normal":
-			Problem = OneMaxProblem(problem_size, N_upper, random_seed)
-		elif mode['problem'] == "trap":
-			Problem = TrappedOneMaxProblem(problem_size, N_upper, random_seed)
-		evals, success = run_multiple_times(10, Problem, mode)
+		evals, success = run_multiple_times(10, problem_size, N_upper, random_seed, mode)
 		print(f'success: {success}  -  N_upper: {N_upper}')
 	return N_upper, evals, success
 
@@ -42,12 +38,8 @@ def find_MRPS(N_upper, evals_upper, problem_size, random_seed, mode):
 	evals = evals_upper
 	while (N_upper - N_lower)/N_upper > 0.1:
 		N = (N_upper + N_lower) // 2
-		Problem = None
-		if mode['problem'] == "normal":
-			Problem = OneMaxProblem(problem_size, N, random_seed)
-		elif mode['problem'] == "trap":
-			Problem = TrappedOneMaxProblem(problem_size, N, random_seed)
-		x, success = run_multiple_times(10, Problem, mode)
+		
+		x, success = run_multiple_times(10, problem_size, N, random_seed, mode)
 
 		print(f'N_upper: {N_upper} - N_lower: {N_lower} - success: {success} - x: {x}')
 		if success:
@@ -72,11 +64,13 @@ def run_bisection_multiple_times(times, problem_size, random_seed, mode):
 	evals = []
 	MRPS = []
 	for i in range(times):
-		random_seed += 1
+		
 		print(f'\nRUN BISECTION WITH RANDOM_SEED: {random_seed}')
 		e, m, success = bisection(problem_size, random_seed, mode)
 		if not success:
 			return [], [], False
 		evals.append(e)
 		MRPS.append(m)
+		random_seed += 10
+
 	return evals, MRPS, True

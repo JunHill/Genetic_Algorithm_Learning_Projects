@@ -26,7 +26,7 @@ def get_MRPS_upper_bound(problem_size, random_seed, mode):
 		Problem = TrappedOneMaxProblem(problem_size, N_upper, random_seed)
 
 	evals, success = run_multiple_times(10, Problem, mode)
-	while (not success and N_upper < 8192):
+	while (not success and N_upper <= 8192):
 
 		N_upper = N_upper * 2
 		if mode['problem'] == "normal":
@@ -68,3 +68,15 @@ def bisection(problem_size, random_seed, mode):
 	evals, MRPS = find_MRPS(N_upper, evals_upper, problem_size, random_seed, mode)
 	return evals, MRPS, True
 
+def run_bisection_multiple_times(times, problem_size, random_seed, mode):
+	evals = []
+	MRPS = []
+	for i in range(times):
+		random_seed += 1
+		print(f'\nRUN BISECTION WITH RANDOM_SEED: {random_seed}')
+		e, m, success = bisection(problem_size, random_seed, mode)
+		if not success:
+			return [], [], False
+		evals.append(e)
+		MRPS.append(m)
+	return evals, MRPS, True

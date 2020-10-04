@@ -2,10 +2,10 @@ from bit_maximization import OneMaxProblem, TrappedOneMaxProblem
 
 def run_multiple_times(times, problem_size, N, random_seed, mode):
 	evals = 0
-	for _ in range(times):
+	for i in range(times):
 		result = True
 		x = 0
-
+		#print(f"\t{i}. Maximizing with random_seed {random_seed}")
 		if mode['problem'] == "normal":
 			Problem = OneMaxProblem(problem_size, N, random_seed)
 		elif mode['problem'] == "trap":
@@ -26,11 +26,12 @@ def get_MRPS_upper_bound(problem_size, random_seed, mode):
 	N_upper = 4
 
 	evals, success = run_multiple_times(10, problem_size, N_upper, random_seed, mode)
-	while (not success and N_upper <= 8192):
+	while (not success and N_upper < 8192):
 
 		N_upper = N_upper * 2
+		print(f'  Running N_upper: {N_upper}')
 		evals, success = run_multiple_times(10, problem_size, N_upper, random_seed, mode)
-		print(f'success: {success}  -  N_upper: {N_upper}')
+		print(f'  success: {success}')
 	return N_upper, evals, success
 
 def find_MRPS(N_upper, evals_upper, problem_size, random_seed, mode):
@@ -41,7 +42,7 @@ def find_MRPS(N_upper, evals_upper, problem_size, random_seed, mode):
 		
 		x, success = run_multiple_times(10, problem_size, N, random_seed, mode)
 
-		print(f'N_upper: {N_upper} - N_lower: {N_lower} - success: {success} - x: {x}')
+		print(f'  N_upper: {N_upper} - N_lower: {N_lower} - success: {success} - x: {x}')
 		if success:
 			N_upper = N
 		else:

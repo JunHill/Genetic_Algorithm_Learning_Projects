@@ -3,13 +3,14 @@ from bisection import run_bisection_multiple_times
 import numpy as np
 import sys
 
-PROBLEM_SIZE = 10
+PROBLEM_SIZE = int(sys.argv[1])
 RANDOM_SEED = 18520750
 # DICTIONARY mode
 # problem : normal or trap
 # cross-over : single_point or uniform 
-mode = {'cross-over': 'single_point', 'problem': 'normal'}
+mode = {'cross-over': sys.argv[2], 'problem': sys.argv[3]}
 
+print(f"\nBEGIN EXPERIMENT ({mode['cross-over']} - {mode['problem']}) WITH {PROBLEM_SIZE} BITS")
 evals, MRPS, success = run_bisection_multiple_times(10, PROBLEM_SIZE, RANDOM_SEED, mode)
 
 print(f"evals: {evals}")

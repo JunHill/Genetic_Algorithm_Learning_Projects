@@ -45,7 +45,7 @@ def uniform_cross_over(parent_x, parent_y, rate):
 	return [offspring_1,offspring_2]
 
 def calculate_num_pair_of_children(parent_num):
-	return math.factorial(parent_num) / 2 / math.factorial(parent_num-2)
+	return parent_num * (parent_num - 1) / 2
 
 def get_parent_num(population_size):
 	parent_num = 2
@@ -56,6 +56,12 @@ def get_parent_num(population_size):
 def generate_pair(parent_num, population_size):
 	return list(itertools.combinations(np.arange(parent_num-1),2))[0:population_size]
 
+def check_convergence(fitness):
+	y = fitness[0]
+	for x in fitness:
+		if x != y:
+			return False
+	return True
 
 class OneMaxProblem:
 	def __init__(self, problem_size, population_size, seed):
@@ -77,7 +83,7 @@ class OneMaxProblem:
 		self.tournament_size = 4
 		self.current_fitness = []
 		self.number_of_eval = 0
-
+		self.cnt = 0
 
 	def reset(self):
 		self.population = []
@@ -121,13 +127,21 @@ class OneMaxProblem:
 			# generate pair of parent index for mating
 			pairs = generate_pair(parent_num, self.population_size)
 			# calculate current fitness of the whole population
+			last_fitness = self.current_fitness
 			self.calculate_fitness()
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+				self.cnt += 1
+				if (self.cnt > 5):
+					self.cnt = 0
+					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
+			if (check_convergence(self.current_fitness)):
+				return self.number_of_eval, False
 
 			# pool (P+O)
 			pool = []
@@ -150,14 +164,21 @@ class OneMaxProblem:
 			# generate pair of parent index for mating
 			pairs = generate_pair(parent_num, self.population_size)
 			# calculate current fitness of the whole population
+			last_fitness = self.current_fitness
 			self.calculate_fitness()
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+				self.cnt += 1
+				if (self.cnt > 5):
+					self.cnt = 0
+					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-
+			if (check_convergence(self.current_fitness)):
+				return self.number_of_eval, False
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring
@@ -191,7 +212,7 @@ class TrappedOneMaxProblem:
 		self.tournament_size = 4
 		self.current_fitness = []
 		self.number_of_eval = 0
-
+		self.cnt = 0
 
 	def reset(self):
 		self.population = []
@@ -215,8 +236,9 @@ class TrappedOneMaxProblem:
 			for i in range(int(self.problem_size/5)):
 				score += get_trap_fitness_scores(x[current_index:(i+1)*5])
 				current_index = (i+1)*5
+				self.number_of_eval += 1
 			self.current_fitness.append(score)
-			self.number_of_eval += 1
+			
 
 
 	def tournament_selection(self, pool):
@@ -234,20 +256,27 @@ class TrappedOneMaxProblem:
 
 	def maximize_single_point(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 10000 * self.population_size):
+		while (self.number_of_eval < 10000 * (self.problem_size+self.population_size)):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating
 			pairs = generate_pair(parent_num, self.population_size)
 			# calculate current fitness of the whole population
+			last_fitness = self.current_fitness
 			self.calculate_fitness()
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+				self.cnt += 1
+				if (self.cnt > 5):
+					self.cnt = 0
+					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-
+			if (check_convergence(self.current_fitness)):
+				return self.number_of_eval, False
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring
@@ -263,20 +292,27 @@ class TrappedOneMaxProblem:
 
 	def maximize_uniform(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 100000 * self.problem_size):
+		while (self.number_of_eval < 10000 * (self.problem_size+self.population_size)):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating
 			pairs = generate_pair(parent_num, self.population_size)
 			# calculate current fitness of the whole population
+			last_fitness = self.current_fitness
 			self.calculate_fitness()
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+				self.cnt += 1
+				if (self.cnt > 5):
+					self.cnt = 0
+					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-
+			if (check_convergence(self.current_fitness)):
+				return self.number_of_eval, False
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring
@@ -289,4 +325,3 @@ class TrappedOneMaxProblem:
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False
-

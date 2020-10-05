@@ -5,7 +5,7 @@ def run_multiple_times(times, problem_size, N, random_seed, mode):
 	for i in range(times):
 		result = True
 		x = 0
-		#print(f"\t{i}. Maximizing with random_seed {random_seed}")
+		print(f"\t{i}. Maximizing with random_seed {random_seed}")
 		if mode['problem'] == "normal":
 			Problem = OneMaxProblem(problem_size, N, random_seed)
 		elif mode['problem'] == "trap":
@@ -59,6 +59,11 @@ def bisection(problem_size, random_seed, mode):
 	if not success:
 		return 0, 0, False
 	evals, MRPS = find_MRPS(N_upper, evals_upper, problem_size, random_seed, mode)
+	with open(f'data/Eval/{mode["cross-over"]}_{mode["problem"]}_{problem_size}.txt', 'a') as f:
+		f.write(str(evals) + " ")
+
+	with open(f'data/MRPS/{mode["cross-over"]}_{mode["problem"]}_{problem_size}.txt', 'a') as f:
+		f.write(str(MRPS) + " ")
 	return evals, MRPS, True
 
 def run_bisection_multiple_times(times, problem_size, random_seed, mode):

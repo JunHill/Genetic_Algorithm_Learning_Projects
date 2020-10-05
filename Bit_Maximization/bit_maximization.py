@@ -140,9 +140,7 @@ class OneMaxProblem:
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-			if (check_convergence(self.current_fitness)):
-				return self.number_of_eval, False
-
+			
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring
@@ -177,8 +175,7 @@ class OneMaxProblem:
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-			if (check_convergence(self.current_fitness)):
-				return self.number_of_eval, False
+
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring
@@ -275,8 +272,6 @@ class TrappedOneMaxProblem:
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-			if (check_convergence(self.current_fitness)):
-				return self.number_of_eval, False
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring
@@ -311,8 +306,7 @@ class TrappedOneMaxProblem:
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-			if (check_convergence(self.current_fitness)):
-				return self.number_of_eval, False
+
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring

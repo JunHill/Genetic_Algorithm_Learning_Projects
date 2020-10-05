@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 PROBLEM_SIZE = int(sys.argv[1])
-RANDOM_SEED = 18520750
+RANDOM_SEED = 18520780
 # DICTIONARY mode
 # problem : normal or trap
 # cross-over : single_point or uniform 

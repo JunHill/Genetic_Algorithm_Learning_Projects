@@ -121,7 +121,7 @@ class OneMaxProblem:
 
 	def maximize_single_point(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 10000 * self.problem_size):
+		while (self.number_of_eval < 100000 * self.problem_size):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating
@@ -158,7 +158,7 @@ class OneMaxProblem:
 
 	def maximize_uniform(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 10000 * self.problem_size):
+		while (self.number_of_eval < 100000 * self.problem_size):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating
@@ -256,7 +256,7 @@ class TrappedOneMaxProblem:
 
 	def maximize_single_point(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 10000 * (self.problem_size+self.population_size)):
+		while (self.number_of_eval < 100000 * (self.problem_size+self.population_size)):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating
@@ -292,7 +292,7 @@ class TrappedOneMaxProblem:
 
 	def maximize_uniform(self):
 		# simple Genetic Algorithm with PO(P+O)P model
-		while (self.number_of_eval < 10000 * (self.problem_size+self.population_size)):
+		while (self.number_of_eval < 100000 * (self.problem_size+self.population_size)):
 			# get suitable number of parents
 			parent_num = get_parent_num(self.population_size)
 			# generate pair of parent index for mating

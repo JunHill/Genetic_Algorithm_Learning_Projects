@@ -62,7 +62,20 @@ def check_convergence(fitness):
 		if x != y:
 			return False
 	return True
+def print_population(population):
+	for chromosome in population:
+		s = ""
+		for bit in chromosome:
+			s += str(bit)
+		print(s)
+def print_best(population):
+	s = ""
+	for bit in population[0]:
+		s += str(bit)
+	print(s)
 
+def avg(l):
+	return sum(l)/len(l)
 class OneMaxProblem:
 	def __init__(self, problem_size, population_size, seed):
 		self.seed = seed
@@ -118,6 +131,21 @@ class OneMaxProblem:
 			selected_population.append(tournament[0][0])
 		return selected_population
 
+	def tournament_selection_new(self, pool):
+		selected_population = []
+		buff = pool.copy()
+		for _ in range (self.population_size):
+			tournament = []
+			for _ in range(self.tournament_size):
+				if (len(buff) == 0):
+					buff = pool.copy()
+				random.shuffle(buff)
+				x = buff.pop()
+				tournament.append( (x, get_onemax_fitness_scores(x)) )
+				self.number_of_eval += 1
+			tournament.sort(key=lambda x: x[1], reverse=True)
+			selected_population.append(tournament[0][0])
+		return selected_population
 
 	def maximize_single_point(self):
 		# simple Genetic Algorithm with PO(P+O)P model
@@ -131,7 +159,7 @@ class OneMaxProblem:
 			self.calculate_fitness()
 			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
 				self.cnt += 1
-				if (self.cnt > 5):
+				if (self.cnt > 10):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
@@ -149,7 +177,10 @@ class OneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection(pool)
+			new_generation = self.tournament_selection_new(pool)
+			#print('-----------------------')
+			#print(avg(self.current_fitness))
+			#print_best(self.population)
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False
@@ -166,7 +197,7 @@ class OneMaxProblem:
 			self.calculate_fitness()
 			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
 				self.cnt += 1
-				if (self.cnt > 5):
+				if (self.cnt > 10):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
@@ -184,7 +215,7 @@ class OneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection(pool)
+			new_generation = self.tournament_selection_new(pool)
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False
@@ -250,6 +281,21 @@ class TrappedOneMaxProblem:
 			selected_population.append(tournament[0][0])
 		return selected_population
 
+	def tournament_selection_new(self, pool):
+		selected_population = []
+		buff = pool.copy()
+		for _ in range (self.population_size):
+			tournament = []
+			for _ in range(self.tournament_size):
+				if (len(buff) == 0):
+					buff = pool.copy()
+				random.shuffle(buff)
+				x = buff.pop()
+				tournament.append( (x, get_onemax_fitness_scores(x)) )
+				self.number_of_eval += 1
+			tournament.sort(key=lambda x: x[1], reverse=True)
+			selected_population.append(tournament[0][0])
+		return selected_population
 
 	def maximize_single_point(self):
 		# simple Genetic Algorithm with PO(P+O)P model
@@ -263,11 +309,14 @@ class TrappedOneMaxProblem:
 			self.calculate_fitness()
 			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
 				self.cnt += 1
-				if (self.cnt > 5):
+				if (self.cnt > 10):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
+			#print('-----------------------')
+			#print(avg(self.current_fitness))
+			#print_best(self.population)
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
@@ -280,7 +329,7 @@ class TrappedOneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection(pool)
+			new_generation = self.tournament_selection_new(pool)
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False
@@ -297,11 +346,14 @@ class TrappedOneMaxProblem:
 			self.calculate_fitness()
 			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
 				self.cnt += 1
-				if (self.cnt > 5):
+				if (self.cnt > 10):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
+			#print('-----------------------')
+			#print(avg(self.current_fitness))
+			#print_best(self.population)
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using uniform cross over! number of evaluations: {self.number_of_eval}")
@@ -315,7 +367,7 @@ class TrappedOneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection(pool)
+			new_generation = self.tournament_selection_new(pool)
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False

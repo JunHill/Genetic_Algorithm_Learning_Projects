@@ -7,16 +7,11 @@ from  matplotlib import pyplot as plt
 
 
 def get_onemax_fitness_scores(chromosome):
-	score = 0
-	for bit in chromosome:
-			score += bit | 0
-	return score
+	return np.sum(chromosome)
 
 
 def get_trap_fitness_scores(chromosome):
-	score = 0
-	for bit in chromosome:
-		score += bit | 0
+	score = np.sum(chromosome)
 	if score != len(chromosome):
 		score = len(chromosome) - score - 1
 	return score
@@ -56,23 +51,31 @@ def get_parent_num(population_size):
 def generate_pair(parent_num, population_size):
 	return list(itertools.combinations(np.arange(parent_num-1),2))[0:population_size]
 
-def check_convergence(fitness):
-	y = fitness[0]
-	for x in fitness:
-		if x != y:
-			return False
-	return True
 def print_population(population):
+	population_str = []
 	for chromosome in population:
 		s = ""
 		for bit in chromosome:
 			s += str(bit)
-		print(s)
+		population_str.append(s)
+	print(set(population_str))
+
 def print_best(population):
 	s = ""
 	for bit in population[0]:
 		s += str(bit)
 	print(s)
+
+def initilize_population(problem_size, population_size):
+	a = np.zeros((population_size//2, problem_size))
+	if population_size % 2 == 0:
+		b = np.zeros((population_size//2, problem_size)) + 1
+	else:
+		b = np.zeros((population_size//2 +1, problem_size)) + 1
+	c = np.concatenate((a,b)).T
+	for i in range(len(c)):
+		np.random.shuffle(c[i])
+	return c.T
 
 def avg(l):
 	return sum(l)/len(l)
@@ -82,35 +85,14 @@ class OneMaxProblem:
 		random.seed(self.seed)
 		np.random.seed(self.seed)
 		self.problem_size = problem_size
-		self.population = []
-		for _ in range(problem_size * population_size // 2):
-			self.population += [0]
-
-		for _ in range(problem_size * population_size // 2, problem_size * population_size):
-			self.population += [1]
-
-		np.random.shuffle(self.population)
-		self.population = np.resize(self.population, (population_size, problem_size))
-
+		self.population = initilize_population(problem_size, population_size)
+		
 		self.population_size = population_size
+		self.variation = np.unique(self.population, axis=0)
 		self.tournament_size = 4
 		self.current_fitness = []
 		self.number_of_eval = 0
 		self.cnt = 0
-
-	def reset(self):
-		self.population = []
-		for _ in range(self.problem_size * self.population_size // 2):
-			self.population += [0]
-
-		for _ in range(self.problem_size * self.population_size // 2, self.problem_size * self.population_size):
-			self.population += [1]
-
-		np.random.shuffle(self.population)
-		self.population = np.resize(self.population, (self.population_size, self.problem_size))
-
-		self.current_fitness = []
-		self.number_of_eval = 0
 
 	def calculate_fitness(self):
 		self.current_fitness = []
@@ -120,18 +102,6 @@ class OneMaxProblem:
 
 
 	def tournament_selection(self, pool):
-		selected_population = []
-		for _ in range (self.population_size):
-			tournament = []
-			for _ in range(self.tournament_size):
-				x = random.choice(pool)
-				tournament.append( (x, get_onemax_fitness_scores(x)) )
-				self.number_of_eval += 1
-			tournament.sort(key=lambda x: x[1], reverse=True)
-			selected_population.append(tournament[0][0])
-		return selected_population
-
-	def tournament_selection_new(self, pool):
 		selected_population = []
 		buff = pool.copy()
 		for _ in range (self.population_size):
@@ -147,6 +117,7 @@ class OneMaxProblem:
 			selected_population.append(tournament[0][0])
 		return selected_population
 
+
 	def maximize_single_point(self):
 		# simple Genetic Algorithm with PO(P+O)P model
 		while (self.number_of_eval < 100000 * self.problem_size):
@@ -157,9 +128,10 @@ class OneMaxProblem:
 			# calculate current fitness of the whole population
 			last_fitness = self.current_fitness
 			self.calculate_fitness()
-			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+			self.variation = np.unique(self.population, axis=0)
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(self.variation) <= 2:
 				self.cnt += 1
-				if (self.cnt > 10):
+				if (self.cnt > 20):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
@@ -168,7 +140,6 @@ class OneMaxProblem:
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
 				return self.number_of_eval, True
-			
 			# pool (P+O)
 			pool = []
 			# Take each pair of parents and crossover to generate Offspring
@@ -177,7 +148,7 @@ class OneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection_new(pool)
+			new_generation = self.tournament_selection(pool)
 			#print('-----------------------')
 			#print(avg(self.current_fitness))
 			#print_best(self.population)
@@ -195,9 +166,10 @@ class OneMaxProblem:
 			# calculate current fitness of the whole population
 			last_fitness = self.current_fitness
 			self.calculate_fitness()
-			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+			self.variation = np.unique(self.population, axis=0)
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(self.variation) <= 2:
 				self.cnt += 1
-				if (self.cnt > 10):
+				if (self.cnt > 20):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
@@ -215,7 +187,7 @@ class OneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection_new(pool)
+			new_generation = self.tournament_selection(pool)
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False
@@ -226,35 +198,14 @@ class TrappedOneMaxProblem:
 		random.seed(self.seed)
 		np.random.seed(self.seed)
 		self.problem_size = problem_size
-		self.population = []
-		for _ in range(problem_size * population_size // 2):
-			self.population += [0]
-
-		for _ in range(problem_size * population_size // 2, problem_size * population_size):
-			self.population += [1]
-
-		np.random.shuffle(self.population)
-		self.population = np.resize(self.population, (population_size, problem_size))
-
+		self.population = initilize_population(problem_size, population_size)
 		self.population_size = population_size
 		self.tournament_size = 4
 		self.current_fitness = []
 		self.number_of_eval = 0
 		self.cnt = 0
+		self.variation = np.unique(self.population, axis=0)
 
-	def reset(self):
-		self.population = []
-		for _ in range(self.problem_size * self.population_size // 2):
-			self.population += [0]
-
-		for _ in range(self.problem_size * self.population_size // 2, self.problem_size * self.population_size):
-			self.population += [1]
-
-		np.random.shuffle(self.population)
-		self.population = np.resize(self.population, (self.population_size, self.problem_size))
-
-		self.current_fitness = []
-		self.number_of_eval = 0
 
 	def calculate_fitness(self):
 		self.current_fitness = []
@@ -268,20 +219,7 @@ class TrappedOneMaxProblem:
 			self.current_fitness.append(score)
 			
 
-
 	def tournament_selection(self, pool):
-		selected_population = []
-		for _ in range (self.population_size):
-			tournament = []
-			for _ in range(self.tournament_size):
-				x = random.choice(pool)
-				tournament.append( (x, get_onemax_fitness_scores(x)) )
-				self.number_of_eval += 1
-			tournament.sort(key=lambda x: x[1], reverse=True)
-			selected_population.append(tournament[0][0])
-		return selected_population
-
-	def tournament_selection_new(self, pool):
 		selected_population = []
 		buff = pool.copy()
 		for _ in range (self.population_size):
@@ -307,16 +245,20 @@ class TrappedOneMaxProblem:
 			# calculate current fitness of the whole population
 			last_fitness = self.current_fitness
 			self.calculate_fitness()
-			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+			self.variation = np.unique(self.population, axis=0)
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(self.variation) <= 2:
 				self.cnt += 1
-				if (self.cnt > 10):
+				if (self.cnt > 20):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
 			self.population = np.array([x for _, x in sorted(zip(self.current_fitness, self.population), key=lambda x: -x[0])])
 			#print('-----------------------')
 			#print(avg(self.current_fitness))
-			#print_best(self.population)
+			#if len(set(self.current_fitness)) > 2:	
+			#	print_best(self.population)
+			#else: 
+			#	print_population(self.population)
 			# Solution found if all chromosomes become the fittest
 			if all(x == self.problem_size for x in self.current_fitness):
 				#print(f"solution found using single point crossover! number of evaluations: {self.number_of_eval}")
@@ -329,7 +271,7 @@ class TrappedOneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection_new(pool)
+			new_generation = self.tournament_selection(pool)
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False
@@ -344,9 +286,10 @@ class TrappedOneMaxProblem:
 			# calculate current fitness of the whole population
 			last_fitness = self.current_fitness
 			self.calculate_fitness()
-			if (sum(last_fitness) >= sum(self.current_fitness)) and len(set(self.current_fitness)) <= 2:
+			self.variation = np.unique(self.population, axis=0)
+			if (sum(last_fitness) >= sum(self.current_fitness)) and len(self.variation) <= 2:
 				self.cnt += 1
-				if (self.cnt > 10):
+				if (self.cnt > 20):
 					self.cnt = 0
 					return self.number_of_eval, False
 			# sort the population such that the fittest one comes first
@@ -367,7 +310,7 @@ class TrappedOneMaxProblem:
 			# Add parents to pool
 			pool += list(self.population[0:self.population_size])
 			# generate new population through tournament selection
-			new_generation = self.tournament_selection_new(pool)
+			new_generation = self.tournament_selection(pool)
 			self.population = np.array(new_generation)
 		#print(f"Could not find solution! (after {self.number_of_eval} evaluations)")
 		return self.number_of_eval, False

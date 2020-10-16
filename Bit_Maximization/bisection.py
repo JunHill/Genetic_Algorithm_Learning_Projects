@@ -1,5 +1,5 @@
 from bit_maximization import OneMaxProblem, TrappedOneMaxProblem
-
+import numpy as np
 def run_multiple_times(times, problem_size, N, random_seed, mode):
 	evals = 0
 	for i in range(times):
@@ -7,14 +7,12 @@ def run_multiple_times(times, problem_size, N, random_seed, mode):
 		x = 0
 		#print(f"\t{i}. Maximizing with random_seed {random_seed}")
 		if mode['problem'] == "normal":
-			Problem = OneMaxProblem(problem_size, N, random_seed)
+			Problem = OneMaxProblem(problem_size, N, crossover=mode['cross-over'], seed=random_seed)
 		elif mode['problem'] == "trap":
-			Problem = TrappedOneMaxProblem(problem_size, N, random_seed)
+			Problem = TrappedOneMaxProblem(problem_size, N, crossover=mode['cross-over'], seed=random_seed)
 
-		if mode['cross-over'] == "single_point":
-			x, result = Problem.maximize_single_point()
-		elif mode['cross-over'] == "uniform":
-			x, result = Problem.maximize_uniform()
+		x, result = Problem.maximize()
+
 		if result == False:
 			return 0, False
 		evals += x
@@ -54,7 +52,7 @@ def find_MRPS(N_upper, evals_upper, problem_size, random_seed, mode):
 			evals = x
 	return evals, N_upper
 
-def bisection(problem_size, random_seed, mode, save=False):
+def bisection(problem_size, random_seed, mode, save=True):
 	N_upper, evals_upper, success = get_MRPS_upper_bound(problem_size, random_seed, mode)
 	if not success:
 		return 0, 0, False
@@ -67,7 +65,7 @@ def bisection(problem_size, random_seed, mode, save=False):
 			f.write(str(MRPS) + " ")
 	return evals, MRPS, True
 
-def run_bisection_multiple_times(times, problem_size, random_seed, mode, save=False):
+def run_bisection_multiple_times(times, problem_size, random_seed, mode, save=True):
 	evals = []
 	MRPS = []
 	for i in range(times):
@@ -79,5 +77,15 @@ def run_bisection_multiple_times(times, problem_size, random_seed, mode, save=Fa
 		evals.append(e)
 		MRPS.append(m)
 		random_seed += 10
-
+	if save:
+		with open(f'data/Eval/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}.txt', 'w') as f:
+			for e in evals:
+				f.write(str(e) + " ")
+		with open(f'data/Eval/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}(std).txt', 'w') as f:
+			f.write(str(np.std(evals)) + " ")
+		with open(f'data/MRPS/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}.txt', 'w') as f:
+			for m in MRPS:
+				f.write(str(m) + " ")
+		with open(f'data/MRPS/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}(std).txt', 'w') as f:
+			f.write(str(np.std(MRPS)) + " ")
 	return evals, MRPS, True

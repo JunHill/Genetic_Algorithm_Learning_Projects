@@ -6,8 +6,9 @@ def read_result(location, filename):
 	values = []
 	std = []
 	file = location + filename
-	with open(file) as f:
+	with open(file+'.txt') as f:
 		values = [float(x) for x in next(f).split()]
+	with open(file+'(std).txt') as f:
 		std = [float(x) for x in next(f).split()]
 	return values, std
 

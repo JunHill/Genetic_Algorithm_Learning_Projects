@@ -4,7 +4,6 @@ import sys
 import math
 import copy
 from  matplotlib import pyplot as plt
-from numba import jit
 
 def single_point_cross_over(parent_x, parent_y):
     cross_point = random.randint(0, len(parent_x)-1)
@@ -43,7 +42,6 @@ def get_trap_fitness_score(chromosome):
     s[s == 5] = -1
     return 4*num_trap - s.sum()
 
-@jit(nopython=True)
 def initilize_population(problem_size, population_size):
     a = np.zeros((population_size//2, problem_size))
     if population_size % 2 == 0:
@@ -55,7 +53,6 @@ def initilize_population(problem_size, population_size):
         np.random.shuffle(c[i])
     return c.T
 
-@jit(nopython=True)
 def fraud(population):
     a = np.sum(population, axis=0)
     for i in a:
@@ -63,9 +60,6 @@ def fraud(population):
             return True
     return False
 
-@jit(nopython=True)
-def check_solution(population):
-    return np.sum(population) == (population.shape[0]*population.shape[1])
 
 class Problem:
     def __init__(self, problem_size, population_size, crossover, seed):

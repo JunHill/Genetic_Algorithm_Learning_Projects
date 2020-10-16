@@ -65,7 +65,7 @@ def bisection(problem_size, random_seed, mode, save=True):
 			f.write(str(MRPS) + " ")
 	return evals, MRPS, True
 
-def run_bisection_multiple_times(times, problem_size, random_seed, mode, save=True):
+def run_bisection_multiple_times(times, problem_size, random_seed, mode, save=False):
 	evals = []
 	MRPS = []
 	for i in range(times):
@@ -73,18 +73,23 @@ def run_bisection_multiple_times(times, problem_size, random_seed, mode, save=Tr
 		print(f'\nRUN BISECTION WITH RANDOM_SEED: {random_seed}')
 		e, m, success = bisection(problem_size, random_seed, mode, save)
 		if not success:
-			return [], [], False
+			return e, m, False
+		print(e)
+		print(m)
 		evals.append(e)
 		MRPS.append(m)
 		random_seed += 10
 	if save:
-		with open(f'data/Eval/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}.txt', 'w') as f:
-			for e in evals:
-				f.write(str(e) + " ")
-		with open(f'data/Eval/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}(std).txt', 'w') as f:
-			f.write(str(np.std(evals)) + " ")
-		with open(f'data/MRPS/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}.txt', 'w') as f:
-			for m in MRPS:
+		
+		with open(f'data/Eval/final_averages/{mode["cross-over"]}_{mode["problem"]}.txt', 'a') as f:
+				f.write(str(np.mean(evals)) + " ")
+		with open(f'data/Eval/final_averages/{mode["cross-over"]}_{mode["problem"]}(std).txt', 'a') as f:
+				f.write(str(np.std(evals)) + " ")
+		with open(f'data/MRPS/final_averages/{mode["cross-over"]}_{mode["problem"]}.txt', 'a') as f:
+				f.write(str(np.mean(m)) + " ")
+		with open(f'data/MRPS/final_averages/{mode["cross-over"]}_{mode["problem"]}(std).txt', 'a') as f:
+				f.write(str(np.std(MRPS)) + " ")
+	return evals, MRPS, True
 				f.write(str(m) + " ")
 		with open(f'data/MRPS/final_averages/{mode["cross-over"]}_{mode["problem"]}_{problem_size}(std).txt', 'w') as f:
 			f.write(str(np.std(MRPS)) + " ")

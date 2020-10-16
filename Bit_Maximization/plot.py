@@ -12,7 +12,15 @@ def read_result(location, filename):
 		std = [float(x) for x in next(f).split()]
 	return values, std
 
-
+def make_var(val1, std1, val2, std2):
+	Y = [None, None]
+	Yerr = [None, None]
+	Y[0] = val1
+	Y[1] = val2
+	Yerr[0] = std1
+	Yerr[1] = std2
+	return [10,20,40,80,160], Y, Yerr
+  
 def plot_result(X, Y, yerr, plot_name, y_name):
 	fig, ax = plt.subplots()
 	ax.errorbar(X[0:len(Y[0])], Y[0], yerr=yerr[0], fmt='-o', color='limegreen', label = 'Single Point Cross-over')
@@ -24,4 +32,21 @@ def plot_result(X, Y, yerr, plot_name, y_name):
 	plt.yscale('log')
 	plt.legend()
 	plt.savefig(f'plot/{plot_name}.png')
+
+def plot_(type):
+	val, std = read_result('data/Eval/final_averages/', f'1X_{type}')
+	val1, std1 = read_result('data/Eval/final_averages/', f'UX_{type}')
+	X, Y, Yerr = make_var(val, std, val1, std1)
+	if type == 'normal':
+		plot_result(X, Y, Yerr, 'OneMaxProblem (#Evals)', '#Evals')
+	else:
+		plot_result(X, Y, Yerr, 'Trapped OneMaxProblem (#Evals)', '#Evals')
+
+	val, std = read_result('data/MRPS/final_averages/', f'1X_{type}')
+	val1, std1 = read_result('data/MRPS/final_averages/', f'UX_{type}')
+	X, Y, Yerr = make_var(val, std, val1, std1)
+	if type == 'normal':
+		plot_result(X, Y, Yerr, 'OneMaxProblem (MRPS)', 'MRPS')
+	else:
+		plot_result(X, Y, Yerr, 'Trapped OneMaxProblem (MRPS)', 'MRPS')
 

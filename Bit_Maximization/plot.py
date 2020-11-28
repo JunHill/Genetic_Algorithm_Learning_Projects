@@ -15,11 +15,11 @@ def read_result(location, filename):
 def make_var(val1, std1, val2, std2):
 	Y = [None, None]
 	Yerr = [None, None]
-	Y[0] = val1
-	Y[1] = val2
-	Yerr[0] = std1
-	Yerr[1] = std2
-	return [10,20,40,80,160], Y, Yerr
+	Y[0] = np.log(val1)
+	Y[1] = np.log(val2)
+	Yerr[0] = np.log(std1)
+	Yerr[1] = np.log(std2)
+	return np.log([10,20,40,80,160]), Y, Yerr
   
 def plot_result(X, Y, yerr, plot_name, y_name):
 	fig, ax = plt.subplots()

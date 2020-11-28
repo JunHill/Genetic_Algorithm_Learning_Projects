@@ -3,6 +3,7 @@ import random
 import sys
 import math
 import copy
+import time
 from  matplotlib import pyplot as plt
 
 def single_point_cross_over(parent_x, parent_y):
@@ -15,6 +16,12 @@ def single_point_cross_over(parent_x, parent_y):
     for i in range(cross_point, len(parent_x)):
         offspring_2[i] = parent_x[i] 
     
+    return np.array([offspring_1,offspring_2])
+
+def single_point_cross_over_test(parent_x, parent_y):
+    cross_point = random.randint(0, len(parent_x)-1)
+    offspring_1 = np.concatenate((parent_x[:cross_point], parent_y[cross_point:]))
+    offspring_2 = np.concatenate((parent_y[:cross_point], parent_x[cross_point:]))
     return np.array([offspring_1,offspring_2])
 
 def uniform_cross_over(parent_x, parent_y, rate=0.5):
@@ -78,7 +85,7 @@ class Problem:
 
         self.crossover = crossover
         if crossover == "1X":
-            self.crossover = single_point_cross_over
+            self.crossover = single_point_cross_over_test
         elif crossover == "UX":
             self.crossover = uniform_cross_over
         else:
@@ -104,13 +111,23 @@ class Problem:
             if self.population.all()==1:
                 return self.number_of_eval, True
 
+            #print('Deep copying...')
+            #tic = time.time()
             pool = copy.deepcopy(self.population)
+            #print(f'complete in {time.time()-tic}')
+
             # Take each pair of parents and crossover to generate offspring
+            #print("crossover...")
+            #tic = time.time()
             for i in range(1, self.population_size,2):
                 offspring = self.crossover(self.population[i], self.population[i-1])
                 pool = np.concatenate((pool, offspring),axis=0)
+            #print(f'complete in {time.time()-tic}')
             # generate new population through tournament selection
+            #print('tournament....')
+            #tic = time.time()
             self.tournament_selection(pool)
+            #print(f'complete in {time.time() - tic}')
         return self.number_of_eval, False
 
 class OneMaxProblem(Problem):

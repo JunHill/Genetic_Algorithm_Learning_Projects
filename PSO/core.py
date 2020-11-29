@@ -61,8 +61,8 @@ class PSO_Star():
                 self.particles.append(_2DParticle(optimizing_func))
             elif optimizing_func['dimension'] == 10:
                 self.particles.append(_10DParticle(optimizing_func))
-        self.gen_best_pos = self.particles[0].position.copy()
-        self.gen_best_val = self.particles[0].best_val
+        self.gen_best_pos = None
+        self.gen_best_val = float('inf')
 
         self.w = 0.7298
         self.c1 = self.c2 = 1.49618
@@ -73,20 +73,17 @@ class PSO_Star():
             for particle in self.particles:
                 result.append(particle.position)
             result = np.array(result)
-            self.last_pos = [self.particles[x].position.copy() for x in range(self.n_particles)]
-            self.last_score = [self.particles[x].score for x in range(self.n_particles)]
             for particle in self.particles:
                 cnt += 1
-                if cnt > 10**6:
-                    return result, self.gen_best_val, self.gen_best_pos
+                
                 particle.fitness()
-
-            for particle in self.particles:
                 if particle.score < self.gen_best_val:
                     self.gen_best_val = particle.score
                     self.gen_best_pos = particle.position.copy()
-            
-            
+                if cnt > 10**6:
+                    return result, self.gen_best_val, self.gen_best_pos
+                
+                     
             if track == True:
                 np.savetxt(f"result/star/gen{i}.csv", result)
 
@@ -94,13 +91,18 @@ class PSO_Star():
                 new_velocity = (self.w*particle.vel) + (self.c1*random.random()) * (particle.best_pos - particle.position) + (random.random()*self.c2) * (self.gen_best_pos - particle.position)
                 particle.vel = new_velocity
                 particle.move()
-            self.print_best_gen()
+
+            
+            if np.array([x.score for x in self.particles]).std() < 0.00001:
+                return result, self.gen_best_val, self.gen_best_pos
+            #self.print_particle()
+            #input()
         return result, self.gen_best_val, self.gen_best_pos
 
     def print_particle(self):
         print('---------------------------')
         for pid,particle in enumerate(self.particles):
-            print(f'{self.last_pos[pid]} ({self.last_score[pid]}) -> {particle.position} ({particle.score}) => changed ({round(particle.score - self.last_score[pid],3)})')
+            print(f'{particle.score} - {particle.vel}')
 
     def print_best_gen(self):
         print(f'best gen at {self.gen_best_pos} achieves {round(self.gen_best_val,5)}!')
@@ -184,3 +186,8 @@ class PSO_Ring():
         for particle in sorted(self.particles, key=lambda x: x.score)[:1]:
             print(f'{particle.score} - {particle.position} : vel {particle.vel}')
 
+# random.seed(1)
+# np.random.seed(1)
+# solver = PSO_Star(200, 150, R)
+# a,b,c = solver.solve()
+# print(b)

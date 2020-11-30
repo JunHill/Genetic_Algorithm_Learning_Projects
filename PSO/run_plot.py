@@ -12,7 +12,7 @@ def init():
 
 def update(frame):
     res = []
-    with open(f'result/ring/gen{frame}.csv') as fi:
+    with open(f'result/star/gen{frame}.csv') as fi:
         for line in fi:
             li = np.array([0,0], dtype='float64')
             li[0],li[1] = map(float,line.split())
@@ -20,18 +20,17 @@ def update(frame):
         res = np.array(res)
     xdata = res[:,0]
     ydata = res[:,1]
-    print(xdata)
     ax.set_title(f'GEN {frame + 1}')
     ln.set_data(xdata, ydata)
     return ln,
 
-function_list = [Rosenbrock_2]
+function_list = [Eggholder]
 for func in function_list:
-    random.seed(18520750)
-    np.random.seed(18520750)
-    solver = PSO_Ring(32, 50, func)
-    solver.solve(track=True)
-
+    random.seed(18520751)
+    np.random.seed(18520751)
+    solver = PSO_Star(32, 50, func)
+    a,b,c = solver.solve(track=True)
+    print(b)
     xlist = np.linspace(-func['search_domain'], func['search_domain'], 100)
     ylist = np.linspace(-func['search_domain'], func['search_domain'], 100)
     X, Y = np.meshgrid(xlist, ylist)
@@ -56,4 +55,4 @@ for func in function_list:
 
     ani = FuncAnimation(fig, update, frames=np.arange(50, step=4),
                         init_func=init, blit=True,interval=500)
-    ani.save(f"plot/{func['name']}_Ring.gif")
+    ani.save(f"plot/{func['name']}_Star.gif")

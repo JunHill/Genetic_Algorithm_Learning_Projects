@@ -1,4 +1,4 @@
-#Particle Swarm Optimization
+# Particle Swarm Optimization
 In this experiment, four functions are chosen to test the performance of PSO with 2 dimension (Eggholder, Rastrigin, Rosenbrock and Ackley) and 10 dimension (Rastrigin and Rosenbrock).
 
 ## Requirements

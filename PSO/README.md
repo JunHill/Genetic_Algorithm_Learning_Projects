@@ -13,5 +13,9 @@ Missing packages should be installed at ease using pip3 or conda.
 
 ## Run
 
-Run *experiment.sh* to plot the animations (gifs) for 2 dimension problem and run and do ttest on 10 dimension problem to compare between Ring and Star topology
+> Run *experiment.sh* 
+
+* plot the animations (gifs) for 2 dimension problem (run_plot.py)
+* run experiment on 10 dimension problem (run1.py)
+* do ttest on 10 dimension problem to compare between Ring and Star topology (run.py)
 
